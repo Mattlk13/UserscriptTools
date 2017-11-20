@@ -1,0 +1,21 @@
+{
+  "name": "@sobotics/nattyapi",
+  "version": "1.1.2",
+  "description": "",
+  "scripts": {
+    "build": "tsc --declaration"
+  },
+  "author": "Robert Rudman <rjrudman@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@sobotics/caching": "^1.0.2",
+    "@sobotics/chatapi": "^1.1.3",
+    "@sobotics/sotools": "^1.0.0",
+    "rxjs": "^5.5.2",
+    "tslib": "^1.8.0"
+  },
+  "files": [
+    "dist",
+    "readme.md"
+  ]
+}
