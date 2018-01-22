@@ -34,7 +34,7 @@ export class CopyPastorAPI {
         this.subject.subscribe(this.replaySubject);
 
         SimpleCache.GetAndCache(`CopyPastor.FindTarget.${this.answerId}`, () => new Promise<CopyPastorFindTargetResponseItem[]>((resolve, reject) => {
-            const url = `${copyPastorServer}/posts/findTarget?url=//${window.location.hostname}/a/${this.answerId}/4687348`;
+            const url = `${copyPastorServer}/posts/findTarget?url=//${window.location.hostname}/a/${this.answerId}`;
             GM_xmlhttpRequest({
                 method: 'GET',
                 url,
