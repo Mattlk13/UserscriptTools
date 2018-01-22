@@ -7,7 +7,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
 import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
 import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
-import { ChatApi } from '@userscriptTools/chatapi/chatapi';
+import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 
 const nattyFeedbackUrl = 'http://samserver.bhargavrao.com:8000/napi/api/feedback';
 
