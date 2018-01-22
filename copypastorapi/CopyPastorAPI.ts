@@ -57,6 +57,10 @@ export class CopyPastorAPI {
         return this.subject;
     }
 
+    public Promise(): Promise<CopyPastorFindTargetResponseItem[]> {
+        return this.replaySubject.take(1).toPromise();
+    }
+
     public async ReportTruePositive() {
         return Promise.resolve(false);
     }
