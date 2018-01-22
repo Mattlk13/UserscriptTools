@@ -2,8 +2,8 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
-import { CrossDomainCache } from '@sobotics/caching/dist/CrossDomainCache';
-import { SimpleCache } from '@sobotics/caching/dist/SimpleCache';
+import { CrossDomainCache } from '@userscriptTools/caching/CrossDomainCache';
+import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
 
 const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';
 const MetaSmokeUserKeyConfig = 'MetaSmoke.UserKey';

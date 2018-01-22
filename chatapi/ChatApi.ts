@@ -1,4 +1,4 @@
-import { SimpleCache } from '@sobotics/caching/dist/SimpleCache';
+import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
 
 declare const $: JQueryStatic;
 declare const GM_xmlhttpRequest: any;

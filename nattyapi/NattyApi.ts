@@ -5,9 +5,9 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
-import { IsStackOverflow } from '@sobotics/sotools/dist/sotools';
-import { SimpleCache } from '@sobotics/caching/dist/SimpleCache';
-import { ChatApi } from '@sobotics/chatapi/dist/ChatApi';
+import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
+import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
+import { ChatApi } from '@userscriptTools/chatapi/chatapi';
 
 const nattyFeedbackUrl = 'http://samserver.bhargavrao.com:8000/napi/api/feedback';
 

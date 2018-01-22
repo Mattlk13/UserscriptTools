@@ -1,4 +1,4 @@
-import { IsStackOverflow } from '@sobotics/sotools/dist/sotools';
+import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
 
 declare const $: JQueryStatic;
 declare const GM_xmlhttpRequest: any;
