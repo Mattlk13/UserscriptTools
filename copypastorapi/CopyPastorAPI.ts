@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { SimpleCache } from '../caching/SimpleCache';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/map';
 
 const copyPastorServer = 'http://copypastor.sobotics.org';
 
@@ -54,5 +55,13 @@ export class CopyPastorAPI {
             .catch(err => this.subject.error(err));
 
         return this.subject;
+    }
+
+    public async ReportTruePositive() {
+        return Promise.resolve(false);
+    }
+
+    public async ReportFalsePositive() {
+        return Promise.resolve(false);
     }
 }
