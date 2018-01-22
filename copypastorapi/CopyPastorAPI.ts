@@ -5,8 +5,11 @@ import { SimpleCache } from '../caching/SimpleCache';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
+import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 
 const copyPastorServer = 'http://copypastor.sobotics.org';
+
+const soboticsRoomId = 111347;
 
 export interface CopyPastorFindTargetResponseItem {
     post_id: string;
@@ -25,7 +28,7 @@ export class CopyPastorAPI {
     private subject: Subject<CopyPastorFindTargetResponseItem[]>;
     private replaySubject: ReplaySubject<CopyPastorFindTargetResponseItem[]>;
 
-    constructor(private answerId: number) {
+    constructor(private answerId: number, private key: string) {
     }
 
     public Watch(): Observable<CopyPastorFindTargetResponseItem[]> {
@@ -62,10 +65,47 @@ export class CopyPastorAPI {
     }
 
     public async ReportTruePositive() {
-        return Promise.resolve(false);
+        return this.SendFeedback('tp');
     }
 
     public async ReportFalsePositive() {
-        return Promise.resolve(false);
+        return this.SendFeedback('fp');
+    }
+
+    private async SendFeedback(type: 'tp' | 'fp') {
+        const username = $('.top-bar .my-profile .gravatar-wrapper-24').attr('title');
+        const chatApi = new ChatApi();
+        const chatId = await chatApi.GetChatUserId(soboticsRoomId);
+        const results = await this.Promise();
+
+        const payloads = results.map(result => {
+            const postId = result.post_id;
+            const payload = {
+                post_id: postId,
+                feedback_type: type,
+                username,
+                link: `https://chat.stackoverflow.com/users/${chatId}`,
+                key: this.key,
+            };
+            return payload;
+        });
+
+        const promises = payloads.map(payload => {
+            return new Promise<boolean>((resolve, reject) => {
+                $.ajax({
+                    type: 'POST',
+                    url: `${copyPastorServer}/feedback/create`,
+                    data: payload
+                }).done(() => resolve(true))
+                    .fail(() => reject());
+            });
+        });
+        const allResults = await Promise.all(promises);
+        for (let i = 0; i < allResults.length; i++) {
+            if (!allResults[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -9,23 +9,36 @@ export class ChatApi {
         this.chatRoomUrl = `${chatUrl}`;
     }
 
-    public GetChannelFKey(roomId: number): Promise<string> {
+    public async GetChannelFKey(roomId: number): Promise<string> {
         const cachingKey = `StackExchange.ChatApi.FKey_${roomId}`;
         const getterPromise = new Promise<string>((resolve, reject) => {
-            GM_xmlhttpRequest(
-                {
-                    method: 'GET',
-                    url: `${this.chatRoomUrl}/rooms/${roomId}`,
-                    onload: (response: any) => {
-                        if (response.status !== 200) {
-                            reject(response.statusText);
-                        } else {
-                            const fkey = response.responseText.match(/hidden" value="([\dabcdef]{32})/)[1];
-                            resolve(fkey);
-                        }
-                    },
-                    onerror: (data: any) => reject(data)
-                });
+            this.GetChannelPage(roomId).then(channelPage => {
+                const match = channelPage.match(/hidden" value="([\dabcdef]{32})/);
+                if (match && match.length) {
+                    const fkey = match[1];
+                    resolve(fkey);
+                }
+                reject('Could not find fkey');
+            });
+        });
+
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 1);
+        return SimpleCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
+    }
+
+    public async GetChatUserId(roomId: number): Promise<number> {
+        const cachingKey = `StackExchange.ChatApi.UserId_${roomId}`;
+        const getterPromise = new Promise<number>((resolve, reject) => {
+            this.GetChannelPage(roomId).then(channelPage => {
+                const activeUserDiv = $('#active-user', $(channelPage));
+                const classAtr = activeUserDiv.attr('class');
+                const match = classAtr.match(/user-(\d+)/);
+                if (match && match.length) {
+                    resolve(parseInt(match[1], 10));
+                }
+                reject('Could not find user id');
+            });
         });
 
         const expiryDate = new Date();
@@ -58,5 +71,28 @@ export class ChatApi {
                 });
             });
         });
+    }
+
+    private GetChannelPage(roomId: number): Promise<string> {
+        const cachingKey = `StackExchange.ChatApi.ChannelData_${roomId}`;
+        const getterPromise = new Promise<string>((resolve, reject) => {
+            GM_xmlhttpRequest(
+                {
+                    method: 'GET',
+                    url: `${this.chatRoomUrl}/rooms/${roomId}`,
+                    onload: (response: any) => {
+                        if (response.status !== 200) {
+                            reject(response.statusText);
+                        } else {
+                            resolve(response.responseText);
+                        }
+                    },
+                    onerror: (data: any) => reject(data)
+                });
+        });
+
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 1);
+        return SimpleCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
     }
 }
