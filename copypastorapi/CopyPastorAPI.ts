@@ -101,6 +101,9 @@ export class CopyPastorAPI {
             });
         });
         const allResults = await Promise.all(promises);
+        if (allResults.length <= 0) {
+            return false;
+        }
         for (let i = 0; i < allResults.length; i++) {
             if (!allResults[i]) {
                 return false;
