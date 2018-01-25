@@ -92,12 +92,28 @@ export class CopyPastorAPI {
 
         const promises = payloads.map(payload => {
             return new Promise<boolean>((resolve, reject) => {
-                $.ajax({
-                    type: 'POST',
+                const payloadString = JSON.stringify(payload);
+                GM_xmlhttpRequest({
+                    method: 'POST',
                     url: `${copyPastorServer}/feedback/create`,
-                    data: payload
-                }).done(() => resolve(true))
-                    .fail(() => reject());
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    data:
+                        'post_id=' + payload.post_id
+                        + '&feedback_type=' + payload.feedback_type
+                        + '&username=' + payload.username
+                        + '&link=' + payload.link
+                        + '&key=' + payload.key,
+                    onload: (response: any) => {
+                        if (response.status !== 200) {
+                            reject(JSON.parse(response.responseText));
+                        } else {
+                            resolve(true);
+                        }
+                    },
+                    onerror: (response: any) => {
+                        reject(response);
+                    },
+                });
             });
         });
         const allResults = await Promise.all(promises);
