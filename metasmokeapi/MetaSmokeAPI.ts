@@ -5,9 +5,9 @@ import 'rxjs/add/operator/take';
 import { CrossDomainCache } from '@userscriptTools/caching/CrossDomainCache';
 import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
 
-const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';
-const MetaSmokeUserKeyConfig = 'MetaSmoke.UserKey';
-const MetaSmokeWasReportedConfig = 'MetaSmoke.WasReported';
+export const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';
+export const MetaSmokeUserKeyConfig = 'MetaSmoke.UserKey';
+export const MetaSmokeWasReportedConfig = 'MetaSmoke.WasReported';
 
 interface MetaSmokeApiItem {
     id: number;
