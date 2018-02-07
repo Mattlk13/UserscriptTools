@@ -1,3 +1,73 @@
+export type QuestionPageInfo = QuestionQuestion | QuestionAnswer;
+
+export interface QuestionQuestion {
+    type: 'Question';
+    element: JQuery;
+    page: 'Question';
+    postId: number;
+    postTime: Date;
+    score: number;
+    authorReputation?: number;
+    authorName: string;
+    authorId?: number;
+}
+export interface QuestionAnswer {
+    type: 'Answer';
+    element: JQuery;
+    page: 'Question';
+    postId: number;
+    question: QuestionQuestion;
+
+    postTime: Date;
+    score: number;
+
+    authorReputation?: number;
+    authorName: string;
+    authorId?: number;
+}
+export interface NatoAnswer {
+    type: 'Answer';
+    element: JQuery;
+    page: 'NATO';
+    postId: number;
+    answerTime: Date;
+    questionTime: Date;
+    authorReputation?: number;
+    authorName: string;
+    authorId?: number;
+}
+
+export interface FlagPageInfo {
+    type: 'Answer' | 'Question';
+    element: JQuery;
+    page: 'Flags';
+    postId: number;
+    score: number;
+    postTime: Date;
+    handledTime: Date;
+    handledResult: string;
+    handledComment: string;
+    authorName: string;
+    authorId: number;
+}
+
+export interface GenericPageInfo {
+    type: 'Answer';
+    element: JQuery;
+    page: 'Unknown';
+    postId: number;
+}
+
+export type PostInfo = NatoAnswer | QuestionPageInfo | FlagPageInfo | GenericPageInfo;
+
+($ as any).event.special.destroyed = {
+    remove: (o: any) => {
+        if (o.handler) {
+            o.handler();
+        }
+    }
+};
+
 export function IsStackOverflow() {
     return !!window.location.href.match(/^https:\/\/stackoverflow.com/);
 }
@@ -5,9 +75,8 @@ export function IsStackOverflow() {
 export function isNatoPage() {
     return !!window.location.href.match(/\/tools\/new-answers-old-questions/);
 }
-function parseNatoPage() {
+function parseNatoPage(callback: (post: NatoAnswer) => void) {
     const nodes = $('.answer-hyperlink').parent().parent();
-    const results = [];
     for (let i = 0; i < nodes.length; i++) {
         const node = $(nodes[i]);
 
@@ -19,7 +88,7 @@ function parseNatoPage() {
         const authorReputation = parseReputation(node.find('.reputation-score'));
         const { authorName, authorId } = parseAuthorDetails(node.find('.user-details'));
 
-        results.push({
+        callback({
             type: 'Answer' as 'Answer',
             element: node,
             page: 'NATO' as 'NATO',
@@ -31,16 +100,12 @@ function parseNatoPage() {
             authorId,
         });
     }
-    return results;
 }
 
 export function isQuestionPage() {
     return !!window.location.href.match(/\/questions\/\d+.*/);
 }
-function parseQuestionPage() {
-    const questionNode = $('.question');
-
-    const postId = parseInt(questionNode.attr('data-questionid'), 10);
+function parseQuestionPage(callback: (post: QuestionPageInfo) => void) {
 
     function getPostDetails(node: JQuery) {
         const score = parseInt(node.find('.vote-count-post').text(), 10);
@@ -51,38 +116,25 @@ function parseQuestionPage() {
         const postTime = parseActionDate(node.find('.post-signature .relativetime').last());
         return { score, authorReputation, authorName, authorId, postTime };
     }
-    let postDetails =  getPostDetails(questionNode);
 
-    const results = [];
-    const question = {
-        type: 'Question' as 'Question',
-        element: questionNode,
-        page: 'Question' as 'Question',
-        postId,
-        postTime: postDetails.postTime,
+    let question: QuestionQuestion;
+    const parseQuestionDetails = (qNode: JQuery) => {
+        const postId = parseInt(qNode.attr('data-questionid'), 10);
 
-        score: postDetails.score,
+        const postDetails = getPostDetails(qNode);
 
-        authorReputation: postDetails.authorReputation,
-        authorName: postDetails.authorName,
-        authorId: postDetails.authorId
-    };
-    results.push(question);
+        qNode.find('.postcell').bind('destroyed', () => {
+            setTimeout(() => {
+                const updatedQuestionNode = $(`[data-questionid="${postId}"]`);
+                parseQuestionDetails(updatedQuestionNode);
+            });
+        });
 
-    const answerNodes = $('.answer');
-    for (let i = 0; i < answerNodes.length; i++) {
-        const answerNode = $(answerNodes[i]);
-        const answerId = parseInt(answerNode.attr('data-answerid'), 10);
-
-        postDetails = getPostDetails(answerNode);
-
-        results.push({
-            type: 'Answer' as 'Answer',
-            element: answerNode,
+        question = {
+            type: 'Question' as 'Question',
+            element: qNode,
             page: 'Question' as 'Question',
-            postId: answerId,
-            question,
-
+            postId,
             postTime: postDetails.postTime,
 
             score: postDetails.score,
@@ -90,15 +142,51 @@ function parseQuestionPage() {
             authorReputation: postDetails.authorReputation,
             authorName: postDetails.authorName,
             authorId: postDetails.authorId
-        });
+        };
+        callback(question);
+    };
+    const questionNode = $('.question');
+    parseQuestionDetails(questionNode);
+
+    const answerNodes = $('.answer');
+    for (let i = 0; i < answerNodes.length; i++) {
+        const parseAnswerDetails = (aNode: JQuery) => {
+            const answerId = parseInt(aNode.attr('data-answerid'), 10);
+
+            const postDetails = getPostDetails(aNode);
+
+            aNode.find('.answercell').bind('destroyed', () => {
+                setTimeout(() => {
+                    const updatedAnswerNode = $(`#answer-${answerId}`);
+                    parseAnswerDetails(updatedAnswerNode);
+                });
+            });
+
+            callback({
+                type: 'Answer' as 'Answer',
+                element: aNode,
+                page: 'Question' as 'Question',
+                postId: answerId,
+                question,
+
+                postTime: postDetails.postTime,
+
+                score: postDetails.score,
+
+                authorReputation: postDetails.authorReputation,
+                authorName: postDetails.authorName,
+                authorId: postDetails.authorId
+            });
+        };
+        const answerNode = $(answerNodes[i]);
+        parseAnswerDetails(answerNode);
     }
-    return results;
 }
 
 export function isFlagsPage() {
     return !!window.location.href.match(/\/users\/flag-summary\//);
 }
-function parseFlagsPage() {
+function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
     const nodes = $('.flagged-post');
     const results = [];
     for (let i = 0; i < nodes.length; i++) {
@@ -141,7 +229,7 @@ function parseFlagsPage() {
     return results;
 }
 
-function parseGenericPage() {
+function parseGenericPage(callback: (post: GenericPageInfo) => void) {
     const questionNodes = $('.question-hyperlink');
     const results = [];
     for (let i = 0; i < questionNodes.length; i++) {
@@ -178,26 +266,22 @@ function parseGenericPage() {
     return results;
 }
 
-export function parseQuestionsAndAnswers() {
+export function parseQuestionsAndAnswers(callback: (post: PostInfo) => void) {
     if (isNatoPage()) {
-        // We explicitly type the page, as it allows the typescript compiler to
-        // figure out the type of posts if a user checks if. For example:
-        // const parsed = parseCurrentPage();
-        // if (parsed.Page === 'Nato') {
-        //     parsed.Posts is now properly typed as a nato post
-        // }
-        // If we don't do this, 'Page' is simply a string and doesn't give us any compiler hints
-        return { Page: 'NATO' as 'NATO', Posts: parseNatoPage() };
+        parseNatoPage(callback);
+        return;
     }
     if (isQuestionPage()) {
-        return { Page: 'Question' as 'Question', Posts: parseQuestionPage() };
+        parseQuestionPage(callback);
+        return;
     }
 
     if (isFlagsPage()) {
-        return { Page: 'Flags' as 'Flags', Posts: parseFlagsPage() };
+        parseFlagsPage(callback);
+        return;
     }
 
-    return { Page: 'Unknown' as 'Unknown', Posts: parseGenericPage() };
+    parseGenericPage(callback);
 }
 
 function parseReputation(reputationDiv: JQuery) {
