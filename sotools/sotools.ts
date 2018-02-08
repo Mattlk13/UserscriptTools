@@ -48,7 +48,7 @@ export interface FlagPageInfo {
     handledResult: string;
     handledComment: string;
     authorName: string;
-    authorId: number;
+    authorId?: number;
 }
 
 export interface GenericPageInfo {
@@ -188,7 +188,6 @@ export function isFlagsPage() {
 }
 function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
     const nodes = $('.flagged-post');
-    const results = [];
     for (let i = 0; i < nodes.length; i++) {
         const node = $(nodes[i]);
 
@@ -212,7 +211,7 @@ function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
         const handledResult = fullHandledResult[0].trim();
         const handledComment = fullHandledResult.slice(1).join(' - ').trim();
 
-        results.push({
+        callback({
             type: type as 'Answer' | 'Question',
             element: node,
             page: 'Flags' as 'Flags',
@@ -226,7 +225,6 @@ function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
             authorId
         });
     }
-    return results;
 }
 
 function parseGenericPage(callback: (post: GenericPageInfo) => void) {
