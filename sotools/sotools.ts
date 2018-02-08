@@ -52,7 +52,7 @@ export interface FlagPageInfo {
 }
 
 export interface GenericPageInfo {
-    type: 'Answer';
+    type: 'Question' | 'Answer';
     element: JQuery;
     page: 'Unknown';
     postId: number;
@@ -229,7 +229,6 @@ function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
 
 function parseGenericPage(callback: (post: GenericPageInfo) => void) {
     const questionNodes = $('.question-hyperlink');
-    const results = [];
     for (let i = 0; i < questionNodes.length; i++) {
         const questionNode = $(questionNodes[i]);
         let fragment = questionNode.attr('href').split('/')[2];
@@ -238,7 +237,7 @@ function parseGenericPage(callback: (post: GenericPageInfo) => void) {
         }
         const postId = parseInt(fragment, 10);
 
-        results.push({
+        callback({
             type: 'Question' as 'Question',
             element: questionNode,
             page: 'Unknown' as 'Unknown',
@@ -254,14 +253,13 @@ function parseGenericPage(callback: (post: GenericPageInfo) => void) {
         }
         const postId = parseInt(fragment, 10);
 
-        results.push({
+        callback({
             type: 'Answer' as 'Answer',
             element: answerNode,
             page: 'Unknown' as 'Unknown',
             postId
         });
     }
-    return results;
 }
 
 export function parseQuestionsAndAnswers(callback: (post: PostInfo) => void) {
