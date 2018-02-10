@@ -9,7 +9,7 @@ import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
 import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 
-const nattyFeedbackUrl = 'http://samserver.bhargavrao.com:8000/napi/api/feedback';
+const nattyFeedbackUrl = 'http://logs.sobotics.org/napi/api/feedback';
 
 export interface NattyFeedbackItemInfo {
     timestamp: number;
