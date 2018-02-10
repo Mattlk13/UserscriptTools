@@ -69,6 +69,9 @@ export class NattyAPI {
     }
 
     public async ReportNaa(answerDate: Date, questionDate: Date) {
+        if (answerDate < questionDate) {
+            throw new Error('Answer must be posted after the question');
+        }
         if (!IsStackOverflow()) {
             return false;
         }
