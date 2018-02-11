@@ -306,6 +306,11 @@ function parseActionDate(actionDiv: JQuery) {
     if (!actionDiv.hasClass('relativetime')) {
         actionDiv = actionDiv.find('.relativetime');
     }
-    const answerTime = new Date(actionDiv.attr('title'));
+    const answerTime = parseDate(actionDiv.attr('title'));
     return answerTime;
+}
+
+export function parseDate(dateStr: string) {
+    // Fix for safari
+    return new Date(dateStr.replace(' ', 'T'));
 }
