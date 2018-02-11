@@ -81,6 +81,12 @@ export class NattyAPI {
         } else {
             const answerAge = this.DaysBetween(answerDate, new Date());
             const daysPostedAfterQuestion = this.DaysBetween(questionDate, answerDate);
+            if (isNaN(answerAge)) {
+                throw new Error('Invalid answerDate provided');
+            }
+            if (isNaN(daysPostedAfterQuestion)) {
+                throw new Error('Invalid questionDate provided');
+            }
             if (answerAge > 30 || daysPostedAfterQuestion < 30) {
                 return false;
             }
