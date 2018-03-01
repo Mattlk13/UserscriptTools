@@ -262,7 +262,7 @@ function parseGenericPage(callback: (post: GenericPageInfo) => void) {
     }
 }
 
-export function parseQuestionsAndAnswers(callback: (post: PostInfo) => void) {
+export function parseQuestionsAndAnswers(callback: (post: PostInfo) => Promise<void>) {
     if (isNatoPage()) {
         parseNatoPage(callback);
         return;
