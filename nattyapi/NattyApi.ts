@@ -31,16 +31,14 @@ const soboticsRoomId = 111347;
 export class NattyAPI {
     private chat: ChatApi = new ChatApi();
     private answerId: number;
-    private subject: Subject<boolean>;
-    private replaySubject: ReplaySubject<boolean>;
+    private subject: Subject<boolean> = new Subject<boolean>();
+    private replaySubject: ReplaySubject<boolean> = new ReplaySubject<boolean>();
 
     constructor(answerId: number) {
         this.answerId = answerId;
     }
 
     public Watch(): Observable<boolean> {
-        this.subject = new Subject<boolean>();
-        this.replaySubject = new ReplaySubject<boolean>(1);
         this.subject.subscribe(this.replaySubject);
 
         if (IsStackOverflow()) {
@@ -135,6 +133,6 @@ export class NattyAPI {
     }
 
     private DaysBetween(first: Date, second: Date) {
-        return Math.round(((second as any) - (first as any)) / (1000 * 60 * 60 * 24));
+        return ((second as any) - (first as any)) / (1000 * 60 * 60 * 24);
     }
 }
