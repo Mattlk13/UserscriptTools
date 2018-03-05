@@ -13,10 +13,11 @@ export class ChatApi {
         const cachingKey = `StackExchange.ChatApi.FKey_${roomId}`;
         const getterPromise = new Promise<string>((resolve, reject) => {
             this.GetChannelPage(roomId).then(channelPage => {
-                const fkeyElement = $('#fkey', $(channelPage));
-                if (fkeyElement) {
+                const fkeyElement = $(channelPage).filter('#fkey');
+                if (fkeyElement.length > 0) {
                     const fkey = fkeyElement.val();
                     resolve(fkey);
+                    return;
                 }
                 reject('Could not find fkey');
             });
