@@ -40,7 +40,7 @@ export class CrossDomainCache {
                     resolve();
                 }
                 const actualItem = JSON.parse(data.value) as ExpiryingCacheItem<T>;
-                if (actualItem === null || actualItem.Expires && actualItem.Expires < new Date()) {
+                if (actualItem === null || actualItem.Expires && new Date(actualItem.Expires) < new Date()) {
                     resolve();
                     return;
                 }

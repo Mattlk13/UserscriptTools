@@ -25,7 +25,7 @@ export class SimpleCache {
             return undefined;
         }
         const dataItem = JSON.parse(jsonItem) as ExpiryingCacheItem<T>;
-        if ((dataItem.Expires && dataItem.Expires < new Date())) {
+        if ((dataItem.Expires && new Date(dataItem.Expires) < new Date())) {
             return undefined;
         }
         return dataItem.Data;
