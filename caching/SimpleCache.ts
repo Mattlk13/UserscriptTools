@@ -19,6 +19,47 @@ export class SimpleCache {
         localStorage.clear();
     }
 
+    public static ClearExpiredKeys(regex?: RegExp) {
+        const len = localStorage.length;
+        for (let i = len - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (key) {
+                if (!regex || key.match(regex)) {
+                    const jsonItem = localStorage.getItem(key);
+                    if (jsonItem) {
+                        try {
+                            const dataItem = JSON.parse(jsonItem) as ExpiryingCacheItem<any>;
+                            if ((dataItem.Expires && new Date(dataItem.Expires) < new Date())) {
+                                localStorage.removeItem(key);
+                            }
+                        } catch {
+                            // Don't care
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static ClearAll(regex: RegExp, condition?: (item: string | null) => boolean) {
+        const len = localStorage.length;
+        for (let i = len - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (key) {
+                if (key.match(regex)) {
+                    if (condition) {
+                        const val = localStorage.getItem(key);
+                        if (condition(val)) {
+                            localStorage.removeItem(key);
+                        }
+                    } else {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+        }
+    }
+
     public static GetFromCache<T>(cacheKey: string): T | undefined {
         const jsonItem = localStorage.getItem(cacheKey);
         if (!jsonItem) {

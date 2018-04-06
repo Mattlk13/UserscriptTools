@@ -159,7 +159,7 @@ export class MetaSmokeAPI {
             const result = await promise;
             const queryUrlStr = this.GetQueryUrl();
 
-            SimpleCache.StoreInCache(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`, undefined);
+            SimpleCache.Unset(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`);
             await Delay(1000);
             this.QueryMetaSmokey();
             return result;
@@ -200,6 +200,8 @@ export class MetaSmokeAPI {
     private QueryMetaSmokey() {
         const urlStr = this.GetQueryUrl();
 
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
         const resultPromise = SimpleCache.GetAndCache<number | null>(`${MetaSmokeWasReportedConfig}.${urlStr}`, () => new Promise((resolve, reject) => {
             MetaSmokeAPI.IsDisabled().then(isDisabled => {
                 if (isDisabled) {
@@ -222,7 +224,7 @@ export class MetaSmokeAPI {
                     reject(error);
                 });
             });
-        }));
+        }), expiryDate);
 
         resultPromise
             .then(r => this.subject.next(r))

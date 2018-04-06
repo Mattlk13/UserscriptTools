@@ -36,6 +36,8 @@ export class CopyPastorAPI {
         this.replaySubject = new ReplaySubject<CopyPastorFindTargetResponseItem[]>(1);
         this.subject.subscribe(this.replaySubject);
 
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
         SimpleCache.GetAndCache(`CopyPastor.FindTarget.${this.answerId}`, () => new Promise<CopyPastorFindTargetResponseItem[]>((resolve, reject) => {
             const url = `${copyPastorServer}/posts/findTarget?url=//${window.location.hostname}/a/${this.answerId}`;
             GM_xmlhttpRequest({
@@ -53,7 +55,7 @@ export class CopyPastorAPI {
                     reject(response);
                 },
             });
-        }))
+        }), expiryDate)
             .then(r => this.subject.next(r))
             .catch(err => this.subject.error(err));
 

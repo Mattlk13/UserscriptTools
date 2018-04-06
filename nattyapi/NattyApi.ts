@@ -42,6 +42,8 @@ export class NattyAPI {
         this.subject.subscribe(this.replaySubject);
 
         if (IsStackOverflow()) {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
             SimpleCache.GetAndCache(`NattyApi.Feedback.${this.answerId}`, () => new Promise<boolean>((resolve, reject) => {
                 GM_xmlhttpRequest({
                     method: 'GET',
@@ -58,7 +60,7 @@ export class NattyAPI {
                         reject(response);
                     },
                 });
-            }))
+            }), expiryDate)
                 .then(r => this.subject.next(r))
                 .catch(err => this.subject.error(err));
         }
@@ -91,7 +93,9 @@ export class NattyAPI {
 
             const promise = this.chat.SendMessage(soboticsRoomId, `@Natty report http://stackoverflow.com/a/${this.answerId}`);
             await promise.then(() => {
-                SimpleCache.StoreInCache(`NattyApi.Feedback.${this.answerId}`, true);
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 30);
+                SimpleCache.StoreInCache(`NattyApi.Feedback.${this.answerId}`, true, expiryDate);
                 this.subject.next(true);
             });
             return true;
