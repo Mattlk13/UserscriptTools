@@ -12,10 +12,11 @@ export class CrossDomainCache {
                 XdLocalStorage.init({
                     iframeUrl,
                     initCallback: () => {
+                        this.cacheFailed = false;
                         resolve();
                     }
                 });
-            } catch {
+            } catch (e) {
                 this.cacheFailed = true;
                 resolve();
             }
