@@ -12,10 +12,11 @@ export class CrossDomainCache {
                 XdLocalStorage.init({
                     iframeUrl,
                     initCallback: () => {
+                        this.cacheFailed = false;
                         resolve();
                     }
                 });
-            } catch {
+            } catch (e) {
                 this.cacheFailed = true;
                 resolve();
             }
@@ -34,13 +35,13 @@ export class CrossDomainCache {
 
     public static async ClearCache() {
         await CrossDomainCache.AwaitInitialization();
-        if (await CrossDomainCache.CacheFailed) { return; }
+        if (await CrossDomainCache.CacheFailed()) { return; }
         XdLocalStorage.clear();
     }
 
     public static async GetFromCache<T>(cacheKey: string): Promise<T | undefined> {
         await CrossDomainCache.AwaitInitialization();
-        if (await CrossDomainCache.CacheFailed) { return undefined; }
+        if (await CrossDomainCache.CacheFailed()) { return undefined; }
         return new Promise<T | undefined>((resolve, reject) => {
             XdLocalStorage.getItem<string>(cacheKey, data => {
                 if (data.value === undefined) {
@@ -58,7 +59,7 @@ export class CrossDomainCache {
 
     public static async StoreInCache<T>(cacheKey: string, item: T, expiresAt?: Date) {
         await CrossDomainCache.AwaitInitialization();
-        if (await CrossDomainCache.CacheFailed) { return; }
+        if (await CrossDomainCache.CacheFailed()) { return; }
         const jsonStr = JSON.stringify({ Expires: expiresAt, Data: item });
         return new Promise((resolve, reject) => {
             XdLocalStorage.setItem(cacheKey, jsonStr, () => {
@@ -69,7 +70,7 @@ export class CrossDomainCache {
 
     public static async Unset(cacheKey: string) {
         await CrossDomainCache.AwaitInitialization();
-        if (await CrossDomainCache.CacheFailed) { return; }
+        if (await CrossDomainCache.CacheFailed()) { return; }
         return new Promise((resolve, reject) => {
             XdLocalStorage.removeItem(cacheKey, () => {
                 resolve();
