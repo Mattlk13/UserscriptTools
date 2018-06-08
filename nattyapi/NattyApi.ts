@@ -48,12 +48,16 @@ export class NattyAPI {
                 GM_xmlhttpRequest({
                     method: 'GET',
                     url: `${nattyFeedbackUrl}/${this.answerId}`,
-                    onload: (response: any) => {
-                        const nattyResult = JSON.parse(response.responseText);
-                        if (nattyResult.items && nattyResult.items[0]) {
-                            resolve(true);
+                    onload: (response: XMLHttpRequest) => {
+                        if (response.status === 200) {
+                            const nattyResult = JSON.parse(response.responseText);
+                            if (nattyResult.items && nattyResult.items[0]) {
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
                         } else {
-                            resolve(false);
+                            reject('Failed to retrieve natty report: ' + response.responseText);
                         }
                     },
                     onerror: (response: any) => {
