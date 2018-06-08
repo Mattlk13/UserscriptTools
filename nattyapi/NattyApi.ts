@@ -43,7 +43,7 @@ export class NattyAPI {
 
         if (IsStackOverflow()) {
             const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + 30);
+            expiryDate.setDate(expiryDate.getDate() + 1);
             SimpleCache.GetAndCache(`NattyApi.Feedback.${this.answerId}`, () => new Promise<boolean>((resolve, reject) => {
                 GM_xmlhttpRequest({
                     method: 'GET',
