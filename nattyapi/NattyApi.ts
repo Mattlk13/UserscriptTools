@@ -45,25 +45,39 @@ export class NattyAPI {
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
             SimpleCache.GetAndCache(`NattyApi.Feedback.${this.answerId}`, () => new Promise<boolean>((resolve, reject) => {
-                GM_xmlhttpRequest({
-                    method: 'GET',
-                    url: `${nattyFeedbackUrl}/${this.answerId}`,
-                    onload: (response: XMLHttpRequest) => {
-                        if (response.status === 200) {
-                            const nattyResult = JSON.parse(response.responseText);
-                            if (nattyResult.items && nattyResult.items[0]) {
-                                resolve(true);
+                let numTries = 0;
+                const onError = (response: any) => {
+                    numTries++;
+                    if (numTries < 3) {
+                        makeRequest();
+                    } else {
+                        reject('Failed to retrieve natty report: ' + response);
+                    }
+                };
+
+                const makeRequest = () => {
+                    GM_xmlhttpRequest({
+                        method: 'GET',
+                        url: `${nattyFeedbackUrl}/${this.answerId}`,
+                        onload: (response: XMLHttpRequest) => {
+                            if (response.status === 200) {
+                                const nattyResult = JSON.parse(response.responseText);
+                                if (nattyResult.items && nattyResult.items[0]) {
+                                    resolve(true);
+                                } else {
+                                    resolve(false);
+                                }
                             } else {
-                                resolve(false);
+                                onError(response.responseText);
                             }
-                        } else {
-                            reject('Failed to retrieve natty report: ' + response.responseText);
-                        }
-                    },
-                    onerror: (response: any) => {
-                        reject(response);
-                    },
-                });
+                        },
+                        onerror: (response: any) => {
+                            onError(response);
+                        },
+                    });
+                };
+
+                makeRequest();
             }), expiryDate)
                 .then(r => this.subject.next(r))
                 .catch(err => this.subject.error(err));
