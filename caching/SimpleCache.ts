@@ -1,7 +1,4 @@
-interface ExpiryingCacheItem<T> {
-    Data: T;
-    Expires?: Date;
-}
+import { ExpiryingCacheItem } from '@userscriptTools/caching/ExpiringCacheItem';
 
 export class SimpleCache {
     public static async GetAndCache<T>(cacheKey: string, getterPromise: () => Promise<T>, expiresAt?: Date): Promise<T> {
