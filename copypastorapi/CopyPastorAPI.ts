@@ -1,11 +1,11 @@
 declare const GM_xmlhttpRequest: any;
 
 import { Observable } from 'rxjs/Observable';
-import { SimpleCache } from '../caching/SimpleCache';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
+import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
 const copyPastorServer = 'http://copypastor.sobotics.org';
 
@@ -38,7 +38,7 @@ export class CopyPastorAPI {
 
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 30);
-        SimpleCache.GetAndCache(`CopyPastor.FindTarget.${this.answerId}`, () => new Promise<CopyPastorFindTargetResponseItem[]>((resolve, reject) => {
+        GreaseMonkeyCache.GetAndCache(`CopyPastor.FindTarget.${this.answerId}`, () => new Promise<CopyPastorFindTargetResponseItem[]>((resolve, reject) => {
             const url = `${copyPastorServer}/posts/findTarget?url=//${window.location.hostname}/a/${this.answerId}`;
             GM_xmlhttpRequest({
                 method: 'GET',

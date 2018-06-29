@@ -6,8 +6,8 @@ import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
 import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
-import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
+import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
 const nattyFeedbackUrl = 'http://logs.sobotics.org/napi/api/feedback';
 
@@ -44,7 +44,7 @@ export class NattyAPI {
         if (IsStackOverflow()) {
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
-            SimpleCache.GetAndCache(`NattyApi.Feedback.${this.answerId}`, () => new Promise<boolean>((resolve, reject) => {
+            GreaseMonkeyCache.GetAndCache(`NattyApi.Feedback.${this.answerId}`, () => new Promise<boolean>((resolve, reject) => {
                 let numTries = 0;
                 const onError = (response: any) => {
                     numTries++;
@@ -113,7 +113,7 @@ export class NattyAPI {
             await promise.then(() => {
                 const expiryDate = new Date();
                 expiryDate.setDate(expiryDate.getDate() + 30);
-                SimpleCache.StoreInCache(`NattyApi.Feedback.${this.answerId}`, true, expiryDate);
+                GreaseMonkeyCache.StoreInCache(`NattyApi.Feedback.${this.answerId}`, true, expiryDate);
                 this.subject.next(true);
             });
             return true;

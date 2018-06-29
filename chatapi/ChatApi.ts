@@ -1,4 +1,4 @@
-import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
+import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
 declare const $: JQueryStatic;
 declare const GM_xmlhttpRequest: any;
@@ -25,7 +25,7 @@ export class ChatApi {
 
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 1);
-        return SimpleCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
+        return GreaseMonkeyCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
     }
 
     public async GetChatUserId(roomId: number): Promise<number> {
@@ -44,7 +44,7 @@ export class ChatApi {
 
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 1);
-        return SimpleCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
+        return GreaseMonkeyCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
     }
 
     public SendMessage(roomId: number, message: string, providedFkey?: string): Promise<void> {
@@ -94,6 +94,6 @@ export class ChatApi {
 
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 1);
-        return SimpleCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
+        return GreaseMonkeyCache.GetAndCache(cachingKey, () => getterPromise, expiryDate);
     }
 }

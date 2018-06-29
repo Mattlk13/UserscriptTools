@@ -2,8 +2,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
-import { CrossDomainCache } from '@userscriptTools/caching/CrossDomainCache';
-import { SimpleCache } from '@userscriptTools/caching/SimpleCache';
+import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
 export const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';
 export const MetaSmokeUserKeyConfig = 'MetaSmoke.UserKey';
@@ -27,14 +26,12 @@ function Delay(milliseconds: number) {
 
 export class MetaSmokeAPI {
     public static async Reset() {
-        await CrossDomainCache.Unset(MetaSmokeDisabledConfig);
-        await CrossDomainCache.Unset(MetaSmokeUserKeyConfig);
-        SimpleCache.Unset(MetaSmokeDisabledConfig);
-        SimpleCache.Unset(MetaSmokeUserKeyConfig);
+        GreaseMonkeyCache.Unset(MetaSmokeDisabledConfig);
+        GreaseMonkeyCache.Unset(MetaSmokeUserKeyConfig);
     }
 
     public static async IsDisabled() {
-        const cachedDisabled = await CrossDomainCache.GetFromCache<boolean>(MetaSmokeDisabledConfig);
+        const cachedDisabled = GreaseMonkeyCache.GetFromCache<boolean>(MetaSmokeDisabledConfig);
         if (cachedDisabled === undefined) {
             return false;
         }
@@ -51,7 +48,7 @@ export class MetaSmokeAPI {
                 }
 
                 if (!confirm('Setting up MetaSmoke... If you do not wish to connect, press cancel. This will not show again if you press cancel. To reset configuration, see footer of Stack Overflow.')) {
-                    CrossDomainCache.StoreInCache(MetaSmokeDisabledConfig, true);
+                    GreaseMonkeyCache.StoreInCache(MetaSmokeDisabledConfig, true);
                     return;
                 }
 
@@ -87,7 +84,7 @@ export class MetaSmokeAPI {
     private static pendingTimeout: number | null = null;
     private static QueryMetaSmoke(postId: number, postType: 'Answer' | 'Question') {
         const url = MetaSmokeAPI.GetQueryUrl(postId, postType);
-        const existingResult = SimpleCache.GetFromCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`);
+        const existingResult = GreaseMonkeyCache.GetFromCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`);
         if (existingResult !== undefined) {
             const key = MetaSmokeAPI.GetObservableKey(postId, postType);
             const obs = MetaSmokeAPI.ObservableLookup[key];
@@ -136,7 +133,7 @@ export class MetaSmokeAPI {
                         const obs = MetaSmokeAPI.ObservableLookup[key];
                         if (obs) {
                             obs.next(item.id);
-                            SimpleCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${item.link}`, item.id, expiryDate);
+                            GreaseMonkeyCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${item.link}`, item.id, expiryDate);
                         }
                         delete pendingPostLookup[item.link];
                     }
@@ -148,7 +145,7 @@ export class MetaSmokeAPI {
                         const obs = MetaSmokeAPI.ObservableLookup[key];
                         if (obs) {
                             obs.next(null);
-                            SimpleCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`, null, expiryDate);
+                            GreaseMonkeyCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`, null, expiryDate);
                         }
                     }
                 }
@@ -187,23 +184,21 @@ export class MetaSmokeAPI {
     }
 
     private static getUserKey() {
-        return SimpleCache.GetAndCache(MetaSmokeUserKeyConfig, () => {
-            return CrossDomainCache.GetAndCache(MetaSmokeUserKeyConfig, () => new Promise<string>(async (resolve, reject) => {
-                let prom = MetaSmokeAPI.actualPromise;
-                if (prom === undefined) {
-                    prom = MetaSmokeAPI.codeGetter(`https://metasmoke.erwaysoftware.com/oauth/request?key=${MetaSmokeAPI.appKey}`);
-                    MetaSmokeAPI.actualPromise = prom;
-                }
-                const code = await prom;
-                if (code) {
-                    $.ajax({
-                        url: 'https://metasmoke.erwaysoftware.com/oauth/token?key=' + MetaSmokeAPI.appKey + '&code=' + code,
-                        method: 'GET'
-                    }).done(data => resolve(data.token))
-                        .fail(err => reject(err));
-                }
-            }));
-        });
+        return GreaseMonkeyCache.GetAndCache(MetaSmokeUserKeyConfig, () => new Promise<string>(async (resolve, reject) => {
+            let prom = MetaSmokeAPI.actualPromise;
+            if (prom === undefined) {
+                prom = MetaSmokeAPI.codeGetter(`https://metasmoke.erwaysoftware.com/oauth/request?key=${MetaSmokeAPI.appKey}`);
+                MetaSmokeAPI.actualPromise = prom;
+            }
+            const code = await prom;
+            if (code) {
+                $.ajax({
+                    url: 'https://metasmoke.erwaysoftware.com/oauth/token?key=' + MetaSmokeAPI.appKey + '&code=' + code,
+                    method: 'GET'
+                }).done(data => resolve(data.token))
+                    .fail(err => reject(err));
+            }
+        }));
     }
 
     public Watch(postId: number, postType: 'Answer' | 'Question'): Observable<number | null> {
@@ -254,7 +249,7 @@ export class MetaSmokeAPI {
             const result = await promise;
             const queryUrlStr = MetaSmokeAPI.GetQueryUrl(postId, postType);
 
-            SimpleCache.Unset(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`);
+            GreaseMonkeyCache.Unset(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`);
             await Delay(1000);
             MetaSmokeAPI.QueryMetaSmoke(postId, postType);
             return result;
