@@ -292,9 +292,9 @@ export function parseQuestionsAndAnswers(callback: (post: PostInfo) => Promise<v
         return;
     }
 
-    if (isModPage()) {
-        parseModPage(callback);
-    }
+    // if (isModPage()) {
+    //     parseModPage(callback);
+    // }
 
     parseGenericPage(callback);
 }
