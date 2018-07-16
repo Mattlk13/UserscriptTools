@@ -1,5 +1,5 @@
 export type QuestionPageInfo = QuestionQuestion | QuestionAnswer;
-
+declare var StackExchange: any;
 export interface QuestionQuestion {
     type: 'Question';
     element: JQuery;
@@ -76,7 +76,7 @@ export function isNatoPage() {
     return !!window.location.href.match(/\/tools\/new-answers-old-questions/);
 }
 export function isModPage() {
-    return !!window.location.href.match(/\/admin\/dashboard/);
+    return !!window.location.href.match(/\/admin/);
 }
 
 function parseNatoPage(callback: (post: NatoAnswer) => void) {
@@ -231,17 +231,6 @@ function parseFlagsPage(callback: (post: FlagPageInfo) => void) {
     }
 }
 
-function parseModPage(callback: (post: GenericPageInfo) => void) {
-    parseGenericPage(post => {
-        callback({
-            type: post.type,
-            element: post.element.closest('.mod-post-header'),
-            page: post.page,
-            postId: post.postId,
-        });
-    });
-}
-
 function parseGenericPage(callback: (post: GenericPageInfo) => void) {
     const questionNodes = $('.question-hyperlink');
     for (let i = 0; i < questionNodes.length; i++) {
@@ -287,14 +276,18 @@ export function parseQuestionsAndAnswers(callback: (post: PostInfo) => Promise<v
         return;
     }
 
+    if ((StackExchange as any).options.user.isModerator) {
+        return;
+    }
+
     if (isFlagsPage()) {
         parseFlagsPage(callback);
         return;
     }
 
-    // if (isModPage()) {
-    //     parseModPage(callback);
-    // }
+    if (isModPage()) {
+        return;
+    }
 
     parseGenericPage(callback);
 }
