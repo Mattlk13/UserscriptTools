@@ -1,4 +1,3 @@
-declare const $: JQueryStatic;
 declare const GM_xmlhttpRequest: any;
 
 import { Observable } from 'rxjs/Observable';

@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';

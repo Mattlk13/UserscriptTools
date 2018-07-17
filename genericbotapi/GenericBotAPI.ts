@@ -3,7 +3,6 @@ import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
 declare const $: JQueryStatic;
 declare const GM_xmlhttpRequest: any;
 
-const genericBotUrl = 'https://so.floern.com/api/trackpost.php';
 const genericBotKey = 'Cm45BSrt51FR3ju';
 
 export class GenericBotAPI {
