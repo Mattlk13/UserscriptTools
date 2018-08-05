@@ -114,10 +114,10 @@ function parseQuestionPage(callback: (post: QuestionPageInfo) => void) {
     function getPostDetails(node: JQuery) {
         const score = parseInt(node.find('.vote-count-post').text(), 10);
 
-        const authorReputation = parseReputation(node.find('.post-signature .reputation-score').last());
-        const { authorName, authorId } = parseAuthorDetails(node.find('.post-signature .user-details').last());
+        const authorReputation = parseReputation(node.find('.user-info .reputation-score').last());
+        const { authorName, authorId } = parseAuthorDetails(node.find('.user-info .user-details').last());
 
-        const postTime = parseActionDate(node.find('.post-signature .relativetime').last());
+        const postTime = parseActionDate(node.find('.user-info .relativetime').last());
         return { score, authorReputation, authorName, authorId, postTime };
     }
 
