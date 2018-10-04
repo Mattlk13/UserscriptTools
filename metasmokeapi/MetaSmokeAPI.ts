@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/take';
-import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
+import { GreaseMonkeyCacheDeprecated } from '@userscriptTools/caching/GreaseMonkeyCacheDeprecated';
 
 export const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';
 export const MetaSmokeUserKeyConfig = 'MetaSmoke.UserKey';
@@ -25,12 +25,12 @@ function Delay(milliseconds: number) {
 
 export class MetaSmokeAPI {
     public static async Reset() {
-        GreaseMonkeyCache.Unset(MetaSmokeDisabledConfig);
-        GreaseMonkeyCache.Unset(MetaSmokeUserKeyConfig);
+        GreaseMonkeyCacheDeprecated.Unset(MetaSmokeDisabledConfig);
+        GreaseMonkeyCacheDeprecated.Unset(MetaSmokeUserKeyConfig);
     }
 
     public static async IsDisabled() {
-        const cachedDisabled = GreaseMonkeyCache.GetFromCache<boolean>(MetaSmokeDisabledConfig);
+        const cachedDisabled = GreaseMonkeyCacheDeprecated.GetFromCache<boolean>(MetaSmokeDisabledConfig);
         if (cachedDisabled === undefined) {
             return false;
         }
@@ -47,7 +47,7 @@ export class MetaSmokeAPI {
                 }
 
                 if (!confirm('Setting up MetaSmoke... If you do not wish to connect, press cancel. This will not show again if you press cancel. To reset configuration, see footer of Stack Overflow.')) {
-                    GreaseMonkeyCache.StoreInCache(MetaSmokeDisabledConfig, true);
+                    GreaseMonkeyCacheDeprecated.StoreInCache(MetaSmokeDisabledConfig, true);
                     return;
                 }
 
@@ -83,7 +83,7 @@ export class MetaSmokeAPI {
     private static pendingTimeout: number | null = null;
     private static QueryMetaSmoke(postId: number, postType: 'Answer' | 'Question') {
         const url = MetaSmokeAPI.GetQueryUrl(postId, postType);
-        const existingResult = GreaseMonkeyCache.GetFromCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`);
+        const existingResult = GreaseMonkeyCacheDeprecated.GetFromCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`);
         if (existingResult !== undefined) {
             const key = MetaSmokeAPI.GetObservableKey(postId, postType);
             const obs = MetaSmokeAPI.ObservableLookup[key];
@@ -132,7 +132,7 @@ export class MetaSmokeAPI {
                         const obs = MetaSmokeAPI.ObservableLookup[key];
                         if (obs) {
                             obs.next(item.id);
-                            GreaseMonkeyCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${item.link}`, item.id, expiryDate);
+                            GreaseMonkeyCacheDeprecated.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${item.link}`, item.id, expiryDate);
                         }
                         delete pendingPostLookup[item.link];
                     }
@@ -144,7 +144,7 @@ export class MetaSmokeAPI {
                         const obs = MetaSmokeAPI.ObservableLookup[key];
                         if (obs) {
                             obs.next(null);
-                            GreaseMonkeyCache.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`, null, expiryDate);
+                            GreaseMonkeyCacheDeprecated.StoreInCache<number | null>(`${MetaSmokeWasReportedConfig}.${url}`, null, expiryDate);
                         }
                     }
                 }
@@ -183,7 +183,7 @@ export class MetaSmokeAPI {
     }
 
     private static getUserKey() {
-        return GreaseMonkeyCache.GetAndCache(MetaSmokeUserKeyConfig, () => new Promise<string>(async (resolve, reject) => {
+        return GreaseMonkeyCacheDeprecated.GetAndCache(MetaSmokeUserKeyConfig, () => new Promise<string>(async (resolve, reject) => {
             let prom = MetaSmokeAPI.actualPromise;
             if (prom === undefined) {
                 prom = MetaSmokeAPI.codeGetter(`https://metasmoke.erwaysoftware.com/oauth/request?key=${MetaSmokeAPI.appKey}`);
@@ -248,7 +248,7 @@ export class MetaSmokeAPI {
             const result = await promise;
             const queryUrlStr = MetaSmokeAPI.GetQueryUrl(postId, postType);
 
-            GreaseMonkeyCache.Unset(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`);
+            GreaseMonkeyCacheDeprecated.Unset(`${MetaSmokeWasReportedConfig}.${queryUrlStr}`);
             await Delay(1000);
             MetaSmokeAPI.QueryMetaSmoke(postId, postType);
             return result;
