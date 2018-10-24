@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
-const copyPastorServer = 'http://copypastor.sobotics.org';
+const copyPastorServer = 'https://copypastor.sobotics.org';
 
 const soboticsRoomId = 111347;
 
