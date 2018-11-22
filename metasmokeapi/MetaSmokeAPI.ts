@@ -172,7 +172,7 @@ export class MetaSmokeAPI {
         const observableKey = this.GetObservableKey(postId, postType);
         const observable = MetaSmokeAPI.ObservableLookup[observableKey];
         if (observable) {
-            return observable.take(1).toPromise();
+            return observable.pipe(take(1)).toPromise();
         }
         return null;
     }

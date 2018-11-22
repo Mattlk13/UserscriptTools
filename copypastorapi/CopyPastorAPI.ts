@@ -1,7 +1,7 @@
 declare const GM_xmlhttpRequest: any;
 
 import { ReplaySubject, Observable, Subject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
