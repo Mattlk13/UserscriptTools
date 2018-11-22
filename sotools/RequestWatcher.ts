@@ -1,9 +1,8 @@
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/filter';
+import { Subject, Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 export function WatchFlags(): Observable<XMLHttpRequest> {
-    return WatchRequests().filter(request => !!(/flags\/posts\/\d+\/add\/[a-zA-Z]+/.exec(request.responseURL)));
+    return WatchRequests().pipe(filter(request => !!(/flags\/posts\/\d+\/add\/[a-zA-Z]+/.exec(request.responseURL))));
 }
 
 export function WatchRequests(): Observable<XMLHttpRequest> {

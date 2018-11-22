@@ -1,9 +1,7 @@
 declare const GM_xmlhttpRequest: any;
 
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
+import { ReplaySubject, Observable, Subject } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
@@ -29,13 +27,12 @@ export class CopyPastorAPI {
     private replaySubject: ReplaySubject<CopyPastorFindTargetResponseItem[]>;
 
     constructor(private answerId: number, private key: string) {
-    }
-
-    public Watch(): Observable<CopyPastorFindTargetResponseItem[]> {
         this.subject = new Subject<CopyPastorFindTargetResponseItem[]>();
         this.replaySubject = new ReplaySubject<CopyPastorFindTargetResponseItem[]>(1);
         this.subject.subscribe(this.replaySubject);
+    }
 
+    public Watch(): Observable<CopyPastorFindTargetResponseItem[]> {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 30);
         GreaseMonkeyCache.GetAndCache(`CopyPastor.FindTarget.${this.answerId}`, () => new Promise<CopyPastorFindTargetResponseItem[]>((resolve, reject) => {
@@ -63,7 +60,7 @@ export class CopyPastorAPI {
     }
 
     public Promise(): Promise<CopyPastorFindTargetResponseItem[]> {
-        return this.replaySubject.take(1).toPromise();
+        return this.replaySubject.pipe(take(1)).toPromise();
     }
 
     public async ReportTruePositive() {

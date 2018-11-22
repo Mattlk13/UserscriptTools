@@ -1,6 +1,5 @@
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import 'rxjs/add/operator/take';
+import { Observable, ReplaySubject } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
 
 export const MetaSmokeDisabledConfig = 'MetaSmoke.Disabled';

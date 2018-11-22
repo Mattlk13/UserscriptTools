@@ -1,9 +1,7 @@
 declare const GM_xmlhttpRequest: any;
 
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import 'rxjs/add/operator/take';
+import { Observable, Subject, ReplaySubject } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { IsStackOverflow } from '@userscriptTools/sotools/sotools';
 import { ChatApi } from '@userscriptTools/chatapi/ChatApi';
 import { GreaseMonkeyCache } from '@userscriptTools/caching/GreaseMonkeyCache';
@@ -150,7 +148,7 @@ export class NattyAPI {
     }
 
     private async WasReported() {
-        return this.replaySubject.take(1).toPromise();
+        return this.replaySubject.pipe(take(1)).toPromise();
     }
 
     private DaysBetween(first: Date, second: Date) {
